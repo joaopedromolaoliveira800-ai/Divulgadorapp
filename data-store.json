@@ -1,0 +1,138 @@
+{
+  "users": [
+    {
+      "id": "usr-admin-joaopedro",
+      "email": "joaopedromolaoliveira800@gmail.com",
+      "name": "João Pedro Mola Oliveira",
+      "role": "ADMIN",
+      "createdAt": "2026-09-11T00:45:13.663Z",
+      "updatedAt": "2026-09-11T00:45:13.664Z"
+    },
+    {
+      "id": "usr-admin-01",
+      "email": "localboostoficial.site@gmail.com",
+      "name": "Gestor DivulgadorAds",
+      "role": "ADMIN",
+      "createdAt": "2026-09-11T00:45:13.663Z",
+      "updatedAt": "2026-09-11T00:45:13.664Z"
+    }
+  ],
+  "googleOAuthConnections": [],
+  "googleAdsAccounts": [
+    {
+      "userId": "usr-admin-joaopedro",
+      "customerId": "568-774-7776",
+      "descriptiveName": "Minha Conta Google Ads",
+      "currencyCode": "BRL",
+      "timeZone": "America/Sao_Paulo",
+      "status": "ENABLED",
+      "isTestAccount": false,
+      "isSelected": true,
+      "id": "acc-1789089988958-smh",
+      "createdAt": "2026-09-11T01:26:28.958Z",
+      "updatedAt": "2026-09-11T01:26:28.958Z"
+    }
+  ],
+  "campaignBudgets": [],
+  "campaigns": [],
+  "adGroups": [],
+  "ads": [],
+  "keywords": [],
+  "negativeKeywords": [],
+  "campaignMetrics": [],
+  "plans": [
+    {
+      "id": "plan-free",
+      "slug": "free",
+      "name": "Grátis",
+      "priceMonthly": 0,
+      "maxAccounts": 1,
+      "maxCampaigns": 2,
+      "hasAiFeatures": false,
+      "hasAdvancedReports": false,
+      "description": "Perfeito para começar a anunciar sem custos fixos de plataforma.",
+      "features": [
+        "1 conta Google Ads conectada",
+        "Até 2 campanhas ativas",
+        "Dashboard essencial com métricas reais",
+        "Suporte via comunidade",
+        "Publicação direta oficial no Google Ads"
+      ]
+    },
+    {
+      "id": "plan-pro",
+      "slug": "pro",
+      "name": "Pro",
+      "priceMonthly": 79,
+      "maxAccounts": 3,
+      "maxCampaigns": 15,
+      "hasAiFeatures": true,
+      "hasAdvancedReports": true,
+      "description": "Para pequenas e médias empresas que desejam acelerar com IA.",
+      "features": [
+        "Até 3 contas Google Ads",
+        "Até 15 campanhas ativas",
+        "Gerador de Anúncios com IA DivulgadorAds",
+        "Sugestão automática de palavras-chave e negativas",
+        "Relatórios avançados e exportação em CSV",
+        "Suporte prioritário via WhatsApp e e-mail"
+      ]
+    },
+    {
+      "id": "plan-agency",
+      "slug": "agency",
+      "name": "Agência",
+      "priceMonthly": 199,
+      "maxAccounts": 20,
+      "maxCampaigns": 100,
+      "hasAiFeatures": true,
+      "hasAdvancedReports": true,
+      "description": "Gestão multi-clientes para agências, gestores de tráfego e consultores.",
+      "features": [
+        "Múltiplas contas de clientes ilimitadas",
+        "Campanhas ilimitadas",
+        "IA ilimitada para copy e palavras-chave",
+        "Relatórios com white-label e exportação executiva",
+        "Painel administrativo completo com logs de API",
+        "Gerente de conta dedicado"
+      ]
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": "sub-admin-joaopedro",
+      "userId": "usr-admin-joaopedro",
+      "planId": "plan-agency",
+      "status": "ACTIVE",
+      "currentPeriodStart": "2026-09-11T00:45:13.664Z",
+      "currentPeriodEnd": "2027-09-11T00:45:13.664Z",
+      "createdAt": "2026-09-11T00:45:13.664Z",
+      "updatedAt": "2026-09-11T00:45:13.664Z"
+    },
+    {
+      "id": "sub-admin-01",
+      "userId": "usr-admin-01",
+      "planId": "plan-pro",
+      "status": "ACTIVE",
+      "currentPeriodStart": "2026-09-11T00:45:13.664Z",
+      "currentPeriodEnd": "2026-10-11T00:45:13.664Z",
+      "createdAt": "2026-09-11T00:45:13.664Z",
+      "updatedAt": "2026-09-11T00:45:13.664Z"
+    }
+  ],
+  "apiLogs": [
+    {
+      "id": "log-seed-01",
+      "userId": "usr-admin-01",
+      "endpoint": "/v18/customers:listAccessibleCustomers",
+      "operation": "SYSTEM_BOOT",
+      "requestId": "init-seed-req",
+      "statusCode": 200,
+      "status": "SUCCESS",
+      "timestamp": "2026-09-11T00:45:13.664Z"
+    }
+  ],
+  "systemConfig": {
+    "developerToken": "obopXETQW2Vmfba7OhvGQ"
+  }
+}

@@ -1,0 +1,250 @@
+// Prisma Schema for DivulgadorAds
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum CampaignObjective {
+  SELL_PRODUCTS
+  GET_CLIENTS
+  LEADS
+  WEBSITE_VISITS
+  BRAND_AWARENESS
+}
+
+enum CampaignStatus {
+  ENABLED
+  PAUSED
+  REMOVED
+}
+
+enum KeywordMatchType {
+  EXACT
+  PHRASE
+  BROAD
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model User {
+  id                    String                 @id @default(uuid())
+  email                 String                 @unique
+  name                  String
+  passwordHash          String?
+  role                  Role                   @default(USER)
+  googleId              String?                @unique
+  avatarUrl             String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  
+  googleOAuthConnection GoogleOAuthConnection?
+  googleAdsAccounts     GoogleAdsAccount[]
+  campaigns             Campaign[]
+  subscriptions         Subscription[]
+  apiLogs               ApiLog[]
+}
+
+model GoogleOAuthConnection {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken     String    // Encrypted in production
+  refreshToken    String    // Securely stored
+  tokenExpiry     DateTime
+  scope           String    // https://www.googleapis.com/auth/adwords
+  googleEmail     String?
+  isConnected     Boolean   @default(true)
+  lastSyncedAt    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model GoogleAdsAccount {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId      String      // Google Ads Customer ID format: 123-456-7890
+  descriptiveName String
+  currencyCode    String      @default("BRL")
+  timeZone        String      @default("America/Sao_Paulo")
+  status          String      @default("ENABLED")
+  isTestAccount   Boolean     @default(false)
+  isSelected      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  campaigns       Campaign[]
+  apiLogs         ApiLog[]
+
+  @@unique([userId, customerId])
+}
+
+model CampaignBudget {
+  id              String    @id @default(uuid())
+  googleBudgetId  String?   // Returned by Google Ads API
+  amountMicros    BigInt    // In micros (e.g. R$ 20.00 = 20,000,000 micros)
+  dailyAmount     Decimal   @db.Decimal(10, 2)
+  deliveryMethod  String    @default("STANDARD")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  campaign        Campaign?
+}
+
+model Campaign {
+  id                  String             @id @default(uuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  googleAdsAccountId  String
+  googleAdsAccount    GoogleAdsAccount   @relation(fields: [googleAdsAccountId], references: [id], onDelete: Cascade)
+  budgetId            String             @unique
+  budget              CampaignBudget     @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  
+  googleCampaignId    String?            // Official Google Ads Campaign Resource ID
+  name                String
+  objective           CampaignObjective
+  targetUrl           String
+  locationTarget      String             @default("Brasil")
+  status              CampaignStatus     @default(PAUSED)
+  servingStatus       String?            @default("PAUSED")
+  advertisingChannel  String             @default("SEARCH")
+  
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  adGroups            AdGroup[]
+  metrics             CampaignMetric[]
+}
+
+model AdGroup {
+  id                String             @id @default(uuid())
+  campaignId        String
+  campaign          Campaign           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  googleAdGroupId   String?            // Official Google Ads AdGroup Resource ID
+  name              String
+  status            String             @default("ENABLED")
+  cpcBidMicros      BigInt?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  ads               Ad[]
+  keywords          Keyword[]
+  negativeKeywords  NegativeKeyword[]
+}
+
+model Ad {
+  id              String      @id @default(uuid())
+  adGroupId       String
+  adGroup         AdGroup     @relation(fields: [adGroupId], references: [id], onDelete: Cascade)
+  googleAdId     String?     // Official Google Ads Ad Resource ID
+  type            String      @default("RESPONSIVE_SEARCH_AD")
+  finalUrls       String[]
+  headlines       String[]    // 3 to 15 headlines (max 30 chars each)
+  descriptions    String[]    // 2 to 4 descriptions (max 90 chars each)
+  status          String      @default("ENABLED")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Keyword {
+  id              String            @id @default(uuid())
+  adGroupId       String
+  adGroup         AdGroup           @relation(fields: [adGroupId], references: [id], onDelete: Cascade)
+  googleCriterionId String?
+  text            String
+  matchType       KeywordMatchType  @default(BROAD)
+  status          String            @default("ENABLED")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model NegativeKeyword {
+  id              String            @id @default(uuid())
+  adGroupId       String
+  adGroup         AdGroup           @relation(fields: [adGroupId], references: [id], onDelete: Cascade)
+  googleCriterionId String?
+  text            String
+  matchType       KeywordMatchType  @default(BROAD)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model CampaignMetric {
+  id              String    @id @default(uuid())
+  campaignId      String
+  campaign        Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  date            DateTime
+  impressions     Int       @default(0)
+  clicks          Int       @default(0)
+  costMicros      BigInt    @default(0)
+  conversions     Float     @default(0.0)
+  ctr             Float     @default(0.0)
+  averageCpc      Float     @default(0.0)
+  costPerConversion Float   @default(0.0)
+  createdAt       DateTime  @default(now())
+
+  @@unique([campaignId, date])
+}
+
+model Plan {
+  id            String          @id @default(uuid())
+  slug          String          @unique // free, pro, agency
+  name          String
+  priceMonthly  Decimal         @db.Decimal(10, 2)
+  maxAccounts   Int
+  maxCampaigns  Int
+  hasAiFeatures Boolean         @default(false)
+  hasAdvancedReports Boolean    @default(false)
+  description   String
+  features      String[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id          String             @id @default(uuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        Plan               @relation(fields: [planId], references: [id])
+  status      SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime    @default(now())
+  currentPeriodEnd   DateTime
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model ApiLog {
+  id              String    @id @default(uuid())
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  customerId      String?
+  googleAdsAccount GoogleAdsAccount? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  endpoint        String
+  operation       String
+  requestId       String?
+  statusCode      Int
+  status          String    // SUCCESS or ERROR
+  errorMessage    String?
+  requestPayload  String?   // Redacted sensitive tokens
+  responsePayload String?
+  timestamp       DateTime  @default(now())
+}

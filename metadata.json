@@ -1,0 +1,6 @@
+{
+  "name": "DivulgadorAds",
+  "description": "Plataforma SaaS de gerenciamento e criação de campanhas de publicidade integrada à Google Ads API oficial.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
